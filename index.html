@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎬 Movie Reviews App 🍿</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="background-animation"></div>
+    <div class="container">
+        <h1 class="fade-in">🎥 Movie Reviews 🌟</h1>
+        <div class="input-section fade-in" style="animation-delay: 0.2s;">
+            <label for="movie_title">🎬 Enter Movie Title:</label>
+            <input type="text" id="movie_title" placeholder="e.g., Inception">
+            <div class="button-group">
+                <button onclick="fetchReview()">Get Review 🎞</button>
+                <button onclick="clearFields()">Clear ✂</button>
+            </div>
+        </div>
+        <div class="review-section fade-in" style="animation-delay: 0.4s;">
+            <pre id="review-text"><span class="animated-emoji">✨</span> Enter a movie title to start your cinematic journey! <span class="animated-emoji">🎥</span></pre>
+        </div>
+    </div>
+
+    <script>
+        function fetchReview() {
+            const movieTitle = document.getElementById('movie_title').value.trim();
+            if (!movieTitle) {
+                alert('⚠ Please enter a movie title! 🎥');
+                return;
+            }
+
+            const reviewText = document.getElementById('review-text');
+            reviewText.innerHTML = '<span class="animated-emoji">📡</span> Fetching review... Please wait! <span class="animated-emoji">⏳</span>';
+
+            fetch('/get_review', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `movie_title=${encodeURIComponent(movieTitle)}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    reviewText.textContent = data.error;
+                } else {
+                    reviewText.innerHTML = animateEmojis(data.review);
+                    updateTheme(data.colors, data.image);
+                }
+            })
+            .catch(error => {
+                reviewText.textContent = `🚫 Error: ${error.message}`;
+            });
+        }
+
+        function clearFields() {
+            document.getElementById('movie_title').value = '';
+            const reviewText = document.getElementById('review-text');
+            reviewText.innerHTML = '<span class="animated-emoji">✨</span> Ready for a new movie adventure! <span class="animated-emoji">🎬</span>';
+            updateTheme({
+                bg: '#333333',
+                fg: 'white',
+                button_bg: '#555555',
+                active_bg: '#777777'
+            }, null);
+        }
+
+        function animateEmojis(text) {
+            const emojiRegex = /[\u231A-\u23FF\u2600-\u26FF\u2700-\u27BF\u2B50\uD83C-\uD83E]/g;
+            const animations = ['film-reel', 'popcorn', 'clapper'];
+            return text.replace(emojiRegex, match => {
+                const randomAnimation = animations[Math.floor(Math.random() * animations.length)];
+                return `<span class="animated-emoji" style="animation-name: ${randomAnimation}">${match}</span>`;
+            });
+        }
+
+        function updateTheme(colors, imageUrl) {
+            document.body.style.backgroundColor = colors.bg;
+            document.body.style.color = colors.fg;
+            document.querySelector('.container').style.backgroundColor = `rgba(${parseInt(colors.bg.slice(1,3), 16)}, ${parseInt(colors.bg.slice(3,5), 16)}, ${parseInt(colors.bg.slice(5,7), 16)}, 0.7)`;
+            document.querySelectorAll('button').forEach(button => {
+                button.style.backgroundColor = colors.button_bg;
+                button.style.color = colors.fg;
+                button.onmouseover = () => button.style.backgroundColor = colors.active_bg;
+                button.onmouseout = () => button.style.backgroundColor = colors.button_bg;
+            });
+            document.getElementById('review-text').style.backgroundColor = colors.button_bg;
+            document.getElementById('review-text').style.color = colors.fg;
+            document.getElementById('movie_title').style.backgroundColor = colors.button_bg;
+            document.getElementById('movie_title').style.color = colors.fg;
+
+            const bgAnimation = document.querySelector('.background-animation');
+            if (imageUrl) {
+                bgAnimation.style.backgroundImage = `url(${imageUrl})`;
+                bgAnimation.style.opacity = '0.3'; // Subtle overlay effect
+                bgAnimation.classList.add('movie-bg-animation');
+            } else {
+                bgAnimation.style.backgroundImage = 'none';
+                bgAnimation.style.opacity = '1';
+                bgAnimation.classList.remove('movie-bg-animation');
+            }
+        }
+
+        // Initialize with default theme
+        updateTheme({
+            bg: '#333333',
+            fg: 'white',
+            button_bg: '#555555',
+            active_bg: '#777777'
+        }, null);
+    </script>
+</body>
+</html>

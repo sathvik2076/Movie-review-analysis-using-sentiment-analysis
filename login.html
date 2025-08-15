@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - Movie Reviews</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        body {
+            background: url('{{ random_movie_image }}') no-repeat center center fixed;
+            background-size: cover;
+        }
+        .container {
+            background: rgba(0, 0, 0, 0.7); /* Dark overlay for readability */
+            color: #fff;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5); /* Spotlight glow */
+        }
+        h1::before {
+            content: "🎬 ";
+        }
+        button {
+            background: #ff4500; /* Cinematic orange */
+            color: white;
+        }
+        button:hover {
+            background: #ff6347;
+        }
+        a {
+            color: #ffd700; /* Gold links */
+        }
+    </style>
+</head>
+<body>
+    <div class="background-animation"></div> <!-- Movie-themed animations -->
+    <div class="container">
+        <h1>Login</h1>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="flash">{{ messages[0] }}</div>
+            {% endif %}
+        {% endwith %}
+        <form method="POST">
+            <label>Email:</label>
+            <input type="email" name="email" required>
+            <label>Password:</label>
+            <input type="password" name="password" required>
+            <button type="submit">Enter the Show 🍿</button>
+        </form>
+        <p>
+            <a href="{{ url_for('signup') }}">Don't have an account? Signup now!</a> | 
+            <a href="{{ url_for('forgot_password') }}">Forgot Your Password?</a>
+        </p>
+    </div>
+</body>
+</html>
